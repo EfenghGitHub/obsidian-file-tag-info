@@ -1,4 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { ExampleView, VIEW_TYPE_EXAMPLE } from "./view";
 
 // Remember to rename these classes and interfaces!
 
@@ -76,10 +77,33 @@ export default class MyPlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+
+    this.registerView(
+      VIEW_TYPE_EXAMPLE,
+      (leaf) => new ExampleView(leaf)
+    );
+
+    // this.addRibbonIcon("dice", "Activate view", () => {
+    //   this.activateView();
+    // });
+    this.activateView();
 	}
 
-	onunload() {
+  async activateView() {
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE);
 
+    await this.app.workspace.getRightLeaf(false).setViewState({
+      type: VIEW_TYPE_EXAMPLE,
+      active: true,
+    });
+
+    this.app.workspace.revealLeaf(
+      this.app.workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE)[0]
+    );
+  }
+
+	onunload() {
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE);
 	}
 
 	async loadSettings() {
